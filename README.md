@@ -2,6 +2,8 @@
 
 **Transfer-matrix simulation of Graphene and MoS₂-Graphene SPR biosensors**
 
+**Companion site:** [ruddro-roy.github.io/SPR-Biosensor-Comparative-Approach](https://ruddro-roy.github.io/SPR-Biosensor-Comparative-Approach/) — a publication-style summary of the computed results, figures, parameter sweeps, and methods.
+
 A research-grade computational optics codebase implementing the Kretschmann-configuration
 Surface Plasmon Resonance (SPR) simulation from:
 
