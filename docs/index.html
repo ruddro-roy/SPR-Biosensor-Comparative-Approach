@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPR Biosensor — Comparative Transfer-Matrix Study | Computational Optics Record</title>
+<meta name="description" content="A research-grade transfer-matrix simulation of Kretschmann surface plasmon resonance biosensors, comparing conventional silver, graphene-enhanced, and MoS₂–graphene configurations at 633 nm.">
+<meta name="theme-color" content="#f6efe2">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="meta">
+      <span>Computational Optics Record &nbsp;·&nbsp; Volume 01 &nbsp;·&nbsp; Companion Edition</span>
+      <span>Wavelength 633&nbsp;nm &nbsp;·&nbsp; Kretschmann Configuration</span>
+    </div>
+    <h1>A Transfer-Matrix Comparative Study of Graphene and MoS<sub>2</sub>–Graphene Surface Plasmon Resonance Biosensors</h1>
+    <p class="deck">An open, reproducible re-implementation of Habib&nbsp;et&nbsp;al. (2019), validated to machine precision against an independent transfer-matrix reference, with a documented discrepancy in the absolute resonance angle.</p>
+    <div class="byline">
+      <strong>Repository</strong> &nbsp;·&nbsp; <a href="https://github.com/ruddro-roy/SPR-Biosensor-Comparative-Approach">ruddro-roy / SPR-Biosensor-Comparative-Approach</a>
+      &nbsp;·&nbsp; <strong>Language</strong> Python ≥ 3.9
+      &nbsp;·&nbsp; <strong>Method</strong> Multilayer TMM, p-polarized, angular interrogation
+    </div>
+    <nav class="contents" aria-label="Contents">
+      <a href="#abstract"><span class="num">I</span>Abstract</a>
+      <a href="#configurations"><span class="num">II</span>Configurations</a>
+      <a href="#results"><span class="num">III</span>Computed Results</a>
+      <a href="#figures"><span class="num">IV</span>Figures</a>
+      <a href="#sweeps"><span class="num">V</span>Parameter Sweeps</a>
+      <a href="#methods"><span class="num">VI</span>Methods &amp; Materials</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- ===================== I. ABSTRACT ===================== -->
+<section id="abstract">
+  <div class="wrap">
+    <h2><span class="num">Section I</span>Abstract</h2>
+    <p class="lede">A multilayer transfer-matrix engine, cross-validated against the Byrnes <em>tmm</em> reference, evaluates three Kretschmann SPR configurations under identical optical constants and reports their resonance angle, minimum reflectance, angular shift, full-width at half-maximum, and bulk refractive-index sensitivity.</p>
+
+    <p>This repository reproduces the comparative analysis of Habib, Roy, Islam, Hassan, Islam &amp; Hossain, <em>Study of Graphene–MoS<sub>2</sub> Based SPR Biosensor with Graphene Based SPR Biosensor: Comparative Approach</em>, <em>International Journal of Natural Sciences Research</em> 7(1), 1–9 (2019), <a href="https://doi.org/10.18488/journal.63.2019.71.1.9">doi:10.18488/journal.63.2019.71.1.9</a>. The implementation is written from first principles using the Fresnel coefficients for p-polarized light, complex Snell propagation, and the Byrnes interface–propagation matrix product. A test suite of sixty-nine cases verifies physical bounds, qualitative trends, and pointwise agreement with an external reference.</p>
+
+    <div class="lockup" aria-label="Headline metrics">
+      <div class="cell">
+        <div class="label">Configurations compared</div>
+        <div class="value">3<span class="unit">&nbsp;layer stacks</span></div>
+        <div class="note">Conventional, graphene-enhanced, MoS<sub>2</sub>–graphene</div>
+      </div>
+      <div class="cell">
+        <div class="label">Test suite</div>
+        <div class="value">69<span class="unit">&nbsp;tests</span></div>
+        <div class="note">Fresnel, TMM, materials, sensor, metrics, regression</div>
+      </div>
+      <div class="cell">
+        <div class="label">Reference agreement</div>
+        <div class="value">10<sup>−15</sup><span class="unit">&nbsp;abs.</span></div>
+        <div class="note">Pointwise vs. Byrnes <em>tmm</em>, machine precision</div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:2rem">
+      <div class="label">Headline finding</div>
+      <p>Using the paper’s stated material constants — SF11 prism <em>n</em>&nbsp;=&nbsp;1.7786, silver <em>ε</em>&nbsp;=&nbsp;−18.295&nbsp;+&nbsp;0.481<em>j</em>, PBS buffer <em>n</em>&nbsp;=&nbsp;1.34 — the SPR resonance occurs near <strong>52–54°</strong>, not the 74–77° reported in the paper. The discrepancy of roughly twenty-two degrees is fundamental and cannot be eliminated by varying film thickness or sensing-medium index. Qualitative trends, namely the angular shift introduced by graphene and the further shift introduced by MoS<sub>2</sub>, are reproduced.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== II. CONFIGURATIONS ===================== -->
+<section id="configurations">
+  <div class="wrap">
+    <h2><span class="num">Section II</span>The Three Configurations</h2>
+    <p class="lede">Each stack uses an identical incident prism, an identical silver film, and an identical buffer; the only variable is the bio-recognition overlayer.</p>
+
+    <div class="cols-2">
+      <div>
+        <h3>Configuration A — Conventional</h3>
+        <p>A bare silver film deposited on an SF11 prism, in contact with phosphate-buffered saline. This is the reference dip used for all subsequent comparisons.</p>
+
+        <h3>Configuration B — Graphene-enhanced</h3>
+        <p>A single monolayer of graphene is added between the silver film and the buffer. The graphene increases the field overlap with the analyte half-space and shifts the resonance to a slightly higher angle.</p>
+
+        <h3>Configuration C — MoS<sub>2</sub>–Graphene</h3>
+        <p>A monolayer of MoS<sub>2</sub> is inserted between silver and graphene. The stronger optical contrast of MoS<sub>2</sub> in the visible range produces a deeper, broader dip and a larger angular shift, at the cost of resonance width.</p>
+      </div>
+      <aside class="aside-card">
+        <h4>Stack notation</h4>
+        <dl>
+          <dt>A. Conventional</dt><dd>Prism / Ag / Buffer</dd>
+          <dt>B. Graphene</dt><dd>Prism / Ag / Graphene / Buffer</dd>
+          <dt>C. MoS<sub>2</sub>–Graphene</dt><dd>Prism / Ag / MoS<sub>2</sub> / Graphene / Buffer</dd>
+          <dt>Source</dt><dd>633&nbsp;nm, p-polarized, angular interrogation</dd>
+          <dt>Convention</dt><dd>Byrnes interface + propagation matrices, <em>r</em>&nbsp;=&nbsp;<em>M</em><sub>21</sub>/<em>M</em><sub>11</sub></dd>
+        </dl>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== III. RESULTS ===================== -->
+<section id="results">
+  <div class="wrap">
+    <h2><span class="num">Section III</span>Computed Results</h2>
+    <p class="lede">Resonance metrics from the present implementation, alongside the values originally reported in the paper.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · Computed by this repository, paper material constants, PBS sensing medium</caption>
+        <thead>
+          <tr>
+            <th>Configuration</th>
+            <th class="num">θ<sub>SPR</sub>&nbsp;(°)</th>
+            <th class="num">R<sub>min</sub></th>
+            <th class="num">Δθ&nbsp;(°)</th>
+            <th class="num">FWHM&nbsp;(°)</th>
+            <th class="num">S&nbsp;(°/RIU)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Conventional (Ag only)</td><td class="num">52.67</td><td class="num">0.315</td><td class="num">0.00</td><td class="num">1.11</td><td class="num">62.0</td></tr>
+          <tr><td>Ag + Graphene (1L)</td><td class="num">52.80</td><td class="num">0.164</td><td class="num">0.13</td><td class="num">1.26</td><td class="num">62.5</td></tr>
+          <tr><td>Ag + MoS<sub>2</sub> + Graphene</td><td class="num">53.49</td><td class="num">0.026</td><td class="num"><span class="diff-up">0.82</span></td><td class="num">1.87</td><td class="num">65.0</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · Reported in Habib et al. (2019), Table 3</caption>
+        <thead>
+          <tr>
+            <th>Configuration</th>
+            <th class="num">θ<sub>SPR</sub>&nbsp;(°)</th>
+            <th class="num">R<sub>min</sub></th>
+            <th class="num">Δθ&nbsp;(°)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Conventional</td><td class="num">74.60</td><td class="num">0.3484</td><td class="num">0.00</td></tr>
+          <tr><td>Graphene</td><td class="num">74.95</td><td class="num">0.1883</td><td class="num">0.35</td></tr>
+          <tr><td>MoS<sub>2</sub>–Graphene</td><td class="num">76.70</td><td class="num">0.0293</td><td class="num">2.10</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Reading the comparison</h3>
+    <p>The two tables agree on the direction of every effect. Adding graphene reduces <em>R</em><sub>min</sub> and shifts the dip outward; adding MoS<sub>2</sub> deepens the dip further and widens the resonance. The disagreement is in absolute angle, not in trend. The plausible explanations are a different choice of silver optical constants or a different transfer-matrix sign convention in the original work; neither film thickness nor sensing-medium index can move the dip by more than a few degrees in this regime.</p>
+  </div>
+</section>
+
+<!-- ===================== IV. FIGURES ===================== -->
+<section id="figures">
+  <div class="wrap">
+    <h2><span class="num">Section IV</span>Figures</h2>
+    <p class="lede">Reflectance curves and DNA-sensing response, generated directly from the simulation.</p>
+
+    <figure>
+      <img src="figures/figure2_spr_curves.png" alt="Reflectance versus angle for the three configurations at 633 nm. Each curve shows a pronounced minimum near 52 to 54 degrees.">
+      <figcaption><span class="num">Figure 2</span>Reflectance against incidence angle for the three Kretschmann configurations. The MoS<sub>2</sub>–graphene curve shows the deepest minimum and the largest shift relative to the bare silver reference.</figcaption>
+    </figure>
+
+    <div class="fig-grid">
+      <figure>
+        <img src="figures/figure3a_graphene_dna.png" alt="DNA sensing response for the graphene configuration at increasing analyte concentration.">
+        <figcaption><span class="num">Figure 3a</span>Graphene configuration. Resonance shift as a function of DNA concentration, reproduction calibration mode.</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/figure3b_mos2_graphene_dna.png" alt="DNA sensing response for the MoS₂–graphene configuration at increasing analyte concentration.">
+        <figcaption><span class="num">Figure 3b</span>MoS<sub>2</sub>–graphene configuration. The same protocol applied to the dichalcogenide-augmented stack.</figcaption>
+      </figure>
+    </div>
+
+    <figure>
+      <img src="figures/sensitivity_comparison.png" alt="Sensitivity in degrees per refractive index unit for the three configurations.">
+      <figcaption><span class="num">Figure 4</span>Bulk refractive-index sensitivity, expressed in degrees per refractive index unit, computed from the angular shift between two sensing media bracketing PBS.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== V. SWEEPS ===================== -->
+<section id="sweeps">
+  <div class="wrap">
+    <h2><span class="num">Section V</span>Parameter Sweeps</h2>
+    <p class="lede">Each sweep varies a single design variable while holding all others fixed, isolating its contribution to the resonance.</p>
+
+    <div class="fig-grid">
+      <figure>
+        <img src="figures/sweep_ag_thickness_theta.png" alt="Resonance angle as a function of silver thickness.">
+        <figcaption><span class="num">Sweep 1a</span>Resonance angle as a function of silver film thickness. The dip is weakly dependent on thickness in the optical-skin-depth regime.</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/sweep_ag_thickness_rmin.png" alt="Minimum reflectance as a function of silver thickness, with a clear optimal value.">
+        <figcaption><span class="num">Sweep 1b</span>Minimum reflectance against silver thickness. The classic critical-coupling minimum appears in the expected window.</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/sweep_graphene_layers.png" alt="Effect of graphene monolayer count on resonance.">
+        <figcaption><span class="num">Sweep 2</span>Effect of graphene monolayer count. Each additional layer shifts and broadens the dip monotonically.</figcaption>
+      </figure>
+      <figure>
+        <img src="figures/sweep_mos2_layers.png" alt="Effect of MoS₂ monolayer count on resonance.">
+        <figcaption><span class="num">Sweep 3</span>Effect of MoS<sub>2</sub> monolayer count. Stronger optical contrast yields a larger shift per added layer than graphene alone.</figcaption>
+      </figure>
+    </div>
+
+    <figure>
+      <img src="figures/sweep_sensing_ri.png" alt="Resonance angle versus sensing medium refractive index, showing a near-linear relationship.">
+      <figcaption><span class="num">Sweep 4</span>Resonance angle as a function of sensing-medium refractive index. The slope of this line is the bulk sensitivity reported in Table 1.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ===================== VI. METHODS ===================== -->
+<section id="methods">
+  <div class="wrap">
+    <h2><span class="num">Section VI</span>Methods &amp; Materials</h2>
+    <p class="lede">All computations are performed at a single wavelength of 633&nbsp;nm with p-polarized illumination. The Fresnel and propagation conventions follow Byrnes, <em>arXiv:1603.02720</em>.</p>
+
+    <div class="cols-2">
+      <div>
+        <h3>Transfer matrix</h3>
+        <p>The angle-resolved reflectance of an N-layer stack follows from a product of two-by-two interface and propagation matrices applied to the incident field amplitudes.</p>
+
+        <div class="eq">cos&nbsp;θ<sub>k</sub> = √(1 − (n<sub>0</sub>/n<sub>k</sub>)<sup>2</sup>&nbsp;sin<sup>2</sup>&nbsp;θ<sub>0</sub>) <span class="lbl">Snell, complex</span></div>
+
+        <div class="eq">r<sub>p</sub> = (n<sub>f</sub>&nbsp;cos&nbsp;θ<sub>i</sub> − n<sub>i</sub>&nbsp;cos&nbsp;θ<sub>f</sub>) / (n<sub>f</sub>&nbsp;cos&nbsp;θ<sub>i</sub> + n<sub>i</sub>&nbsp;cos&nbsp;θ<sub>f</sub>) <span class="lbl">Fresnel, p</span></div>
+
+        <div class="eq">δ<sub>k</sub> = 2π&nbsp;n<sub>k</sub>&nbsp;d<sub>k</sub>&nbsp;cos&nbsp;θ<sub>k</sub> / λ <span class="lbl">Phase</span></div>
+
+        <div class="eq">r = M<sub>21</sub> / M<sub>11</sub>,&nbsp;&nbsp;R = |r|<sup>2</sup> <span class="lbl">Reflectance</span></div>
+
+        <h3>Resonance metrics</h3>
+        <p>The resonance angle is located by parabolic refinement around the discrete minimum. The full-width at half-maximum is taken between the two angles where reflectance equals (1+<em>R</em><sub>min</sub>)/2. Sensitivity is the slope of θ<sub>SPR</sub> against sensing-medium refractive index, evaluated by finite difference around <em>n</em>&nbsp;=&nbsp;1.34.</p>
+
+        <h3>DNA sensing model</h3>
+        <p>Two operating modes are exposed. The reproduction mode applies an empirical scale factor to recover the angular shifts reported in the paper; this factor is documented and has no independent physical derivation. The physics mode maps molar concentration to a mass concentration and to a refractive-index increment using the bulk d<em>n</em>/d<em>c</em> of DNA, producing values much smaller than the paper implies, consistent with the known limitation that bulk d<em>n</em>/d<em>c</em> does not capture surface accumulation.</p>
+      </div>
+
+      <aside class="aside-card">
+        <h4>Material constants at 633&nbsp;nm</h4>
+        <dl>
+          <dt>SF11 prism</dt><dd><em>n</em> = 1.7786 · Schott catalog</dd>
+          <dt>Silver</dt><dd><em>ε</em> = −18.295 + 0.481<em>j</em> · Johnson &amp; Christy 1972</dd>
+          <dt>MoS<sub>2</sub></dt><dd><em>n</em> = 5.9 + 0.8<em>j</em> · Mak et al., PRL 105, 136805</dd>
+          <dt>Graphene</dt><dd><em>n</em> = 3.0 + 1.1487<em>j</em> · Bruna &amp; Borini, APL 94, 031901</dd>
+          <dt>PBS buffer</dt><dd><em>n</em> = 1.34</dd>
+        </dl>
+
+        <h4 style="margin-top:1.5rem">Test coverage</h4>
+        <dl>
+          <dt>Fresnel</dt><dd>Snell, Brewster, total internal reflection, complex media</dd>
+          <dt>TMM</dt><dd>Bounds, dip existence, smoothness, layer effects</dd>
+          <dt>Cross-validation</dt><dd>Pointwise match against Byrnes <em>tmm</em></dd>
+          <dt>Materials</dt><dd>All constants match paper, all sources cited</dd>
+          <dt>Sensor</dt><dd>Stack construction, dimensional analysis</dd>
+          <dt>Metrics</dt><dd>Resonance refinement, FWHM, sensitivity, FOM</dd>
+          <dt>Regression</dt><dd>Qualitative trends, monotonicity, invariants</dd>
+        </dl>
+      </aside>
+    </div>
+
+    <h3>Reproducing the figures</h3>
+<pre><code>git clone https://github.com/ruddro-roy/SPR-Biosensor-Comparative-Approach
+cd SPR-Biosensor-Comparative-Approach
+pip install -e ".[dev,validation]"
+
+pytest tests/ -v                       # 69 tests
+python scripts/reproduce_paper.py      # tables + figures in results/
+python scripts/extended_analysis.py    # parameter sweeps</code></pre>
+
+    <h3>Known limitations</h3>
+    <ol>
+      <li>Absolute SPR angles do not match the paper. The qualitative comparative analysis is preserved.</li>
+      <li>The DNA reproduction mode uses an empirical calibration; the physics mode is consistent with bulk d<em>n</em>/d<em>c</em> values.</li>
+      <li>A single wavelength of 633&nbsp;nm is supported, with no spectral dispersion model.</li>
+      <li>The simulation is fully coherent and assumes flat interfaces; roughness, beam divergence, and incoherent effects are not modeled.</li>
+    </ol>
+
+    <h3>Citation</h3>
+    <blockquote>Habib, M.&nbsp;M., Roy, R., Islam, M.&nbsp;M., Hassan, M., Islam, M.&nbsp;M., &amp; Hossain, M.&nbsp;B. (2019). Study of Graphene–MoS<sub>2</sub> Based SPR Biosensor with Graphene Based SPR Biosensor: Comparative Approach. <em>International Journal of Natural Sciences Research</em>, 7(1), 1–9.</blockquote>
+
+    <div class="ornament">· · ·</div>
+  </div>
+</section>
+
+</main>
+
+<footer class="colophon">
+  <div class="wrap">
+    <div class="row">
+      <div>
+        <h5>Colophon</h5>
+        <p style="max-width:none">Set in Cormorant Garamond and EB Garamond, with JetBrains Mono for tabular and machine text. The companion site is hand-written HTML and CSS, served by GitHub Pages from the <code>/docs</code> directory of the repository’s default branch.</p>
+      </div>
+      <div>
+        <h5>Repository</h5>
+        <ul>
+          <li><a href="https://github.com/ruddro-roy/SPR-Biosensor-Comparative-Approach">Source code</a></li>
+          <li><a href="https://github.com/ruddro-roy/SPR-Biosensor-Comparative-Approach/tree/main/results">Generated figures</a></li>
+          <li><a href="https://github.com/ruddro-roy/SPR-Biosensor-Comparative-Approach/tree/main/tests">Test suite</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Reference</h5>
+        <ul>
+          <li><a href="https://doi.org/10.18488/journal.63.2019.71.1.9">Habib et al., 2019</a></li>
+          <li><a href="https://arxiv.org/abs/1603.02720">Byrnes, 2016</a></li>
+          <li><a href="https://github.com/sbyrnes321/tmm">sbyrnes321 / tmm</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
